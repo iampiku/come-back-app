@@ -1,17 +1,23 @@
 package com.comeback.app.users.entity;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.comeback.app.goals.entity.Goal;
+import com.comeback.app.tasks.entity.Task;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
-@Entity()
+@Entity
 @Table(name = "users")
 public class User {
   @Id
@@ -29,6 +35,12 @@ public class User {
 
   @Column(nullable = false)
   private String hashedPassword;
+
+  @OneToMany(mappedBy = "Task")
+  private List<Task> tasks = new ArrayList<>();
+
+  @OneToMany(mappedBy = "goal")
+  private List<Goal> goals = new ArrayList<>();
 
   @Column(nullable = false, updatable = false)
   private Instant createdAt;
