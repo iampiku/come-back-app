@@ -3,6 +3,8 @@ package com.comeback.app.users.service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.comeback.app.goals.repository.GoalRepository;
+import com.comeback.app.tasks.repository.TaskRepository;
 import com.comeback.app.users.dto.CreateUserDTO;
 import com.comeback.app.users.dto.ResponseUserDTO;
 import com.comeback.app.users.dto.UpdateUserDTO;
@@ -17,10 +19,18 @@ import jakarta.transaction.Transactional;
 public class UserService {
 
 	private final UserRepository userRepository;
+	private final GoalRepository goalRepository;
+	private final TaskRepository taskRepository;
 	private final PasswordEncoder passwordEncoder;
 
-	public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+	public UserService(
+			UserRepository userRepository,
+			GoalRepository goalRepository,
+			TaskRepository taskRepository,
+			PasswordEncoder passwordEncoder) {
 		this.userRepository = userRepository;
+		this.goalRepository = goalRepository;
+		this.taskRepository = taskRepository;
 		this.passwordEncoder = passwordEncoder;
 	}
 
@@ -87,10 +97,12 @@ public class UserService {
 
 	@Transactional
 	public void deleteUser(Long id) {
-		if (this.userRepository.existsById(id))
-			this.userRepository.deleteById(id);
-		else
+		if (!this.userRepository.existsById(id))
 			throw new UserNotFoundException(String.format("User with id %d not found", id));
+
+		this.taskRepository.deleteAllByUserId(id);
+		this.goalRepository.deleteAllByUserId(id);
+		this.userRepository.deleteById(id);
 	}
 
 }
